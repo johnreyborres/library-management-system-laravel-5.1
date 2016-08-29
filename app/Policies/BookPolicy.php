@@ -10,13 +10,6 @@ class BookPolicy
 {
     use HandlesAuthorization;
 
-    public function before($user, $ability)
-    {
-        if ($user->isAdmin()) {
-            return true;
-        }
-    }
-
     /**
      * Determine if the given user can return the given book.
      *

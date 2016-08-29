@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Validator;
-use Session;
 
 use App\Book;
 use App\Repositories\BookRepository;
@@ -77,9 +76,6 @@ class BookController extends Controller
             'quantity' => $request->quantity,
             'shelf_location' => $request->shelf_location,
         ]);
-
-        //Session::flash('message', 'Record is successfully added!'); 
-        //Session::flash('alert-class', 'alert-danger'); 
 
         return redirect('/admin/books');
     }

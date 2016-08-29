@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\User;
 use App\Book;
 use Auth;
+use DB;
 
 class BookRepository
 {
@@ -81,7 +82,7 @@ class BookRepository
     /**
      * Validate if Junior member has reached borrow limit
      *
-     * @param  boolean $result
+     * @return  boolean $result
      */
     public function canJuniorMemberBorrow()
     {
@@ -94,7 +95,7 @@ class BookRepository
     /**
      * Validate if Senior member has reached borrow limit
      *
-     * @param  boolean $result
+     * @return  boolean $result
      */
     public function canSeniorMemberBorrow()
     {
@@ -103,5 +104,30 @@ class BookRepository
         return (Auth::user()->isSenior() && 
                 Auth::user()->books()->where('status', 1)->count() >= $allowedBookCount);
 
+    }
+
+    /**
+     * Computes the penalty for unreturned books after the set expiry date (used by penalty:compute command)
+     *
+     */
+    public function computePenalty()
+    {
+        $daily_penalty_charge = 2;
+        
+        $expired_borrowed_books = DB::table('users_books')
+                                ->where('status', 1)
+                                ->whereRaw('expire_on < CURRENT_TIMESTAMP')
+                                ->get();
+
+        foreach($expired_borrowed_books as $borrowed) {
+            $penalty_days = floor((time() - strtotime($borrowed->expire_on)) / (86400)) + 1;
+            $penalty_fee = ($penalty_days) ? ($daily_penalty_charge * $penalty_days) : 0;
+
+            DB::table('users_books')
+                ->where('id', $borrowed->id)
+                ->update(['penalty_fee' => $penalty_fee]);
+        }
+
+        return true;
     }
 }

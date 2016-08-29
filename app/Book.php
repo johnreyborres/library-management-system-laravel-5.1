@@ -15,15 +15,6 @@ class Book extends Model
     protected $fillable = [
     	'title', 'author', 'isbn', 'quantity', 'shelf_location'
     ];
-    
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'user_id' => 'int',
-    ];
 
     /**
      * The users that own the book.
